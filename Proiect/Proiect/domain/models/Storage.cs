@@ -12,7 +12,7 @@ namespace Proiect.domain.models
         {
             return new List<Product>
             {
-                new("Product 1", "12", 100),
+                new("Product 1", "12", 100.0),
                 new("Product 2", 22, 102),
                 new("Product 3", "35", 75),
                 new("Product 4", "111", 150),
