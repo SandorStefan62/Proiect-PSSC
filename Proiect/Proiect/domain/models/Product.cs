@@ -9,16 +9,16 @@ namespace Proiect.domain.models
 {
     public record class Product
     {
-        public string code { get; init; }
-        public IQuantity quantity { get; init; }
+        public string Code { get; init; }
+        public IQuantity Quantity { get; init; }
         public Product(string code, IQuantity quantity)
         {
-            this.code = code;
-            this.quantity = quantity;
+            this.Code = code;
+            this.Quantity = quantity;
         }
         public override string ToString()
         {
-            return $"Code: {this.code} Quantity: {this.quantity}";
+            return $"[Code: {this.Code} Quantity: {this.Quantity}]";
         }
     }
 }
