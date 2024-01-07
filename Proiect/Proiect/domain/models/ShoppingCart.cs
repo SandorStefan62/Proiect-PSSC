@@ -13,8 +13,12 @@ namespace domain.models
         public interface IShoppingCart { }
         public record EmptyShoppingCart : IShoppingCart
         {
-            internal EmptyShoppingCart() { }
-            public List<Product>Products { get; init; }
+            internal EmptyShoppingCart(Contact contact)
+            {
+                this.UnvalidatedProducts = new List<UnvalidatedProduct>();
+                this.Contact = contact;
+            }
+            public List<UnvalidatedProduct>UnvalidatedProducts { get; init; }
             public Contact Contact { get; init; }
         }
         public record UnvalidatedShoppingCart : IShoppingCart

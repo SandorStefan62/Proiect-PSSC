@@ -1,6 +1,5 @@
 using domain.models;
 using static domain.models.ShoppingCart;
-using CSharp.Choices;
 
 namespace domain.operations
 {
@@ -9,7 +8,7 @@ namespace domain.operations
         public static IShoppingCart ValidateShoppingCart(UnvalidatedShoppingCart unvalidatedShoppingCart)
         {
             List<ValidatedProduct> validatedProducts = new List<ValidatedProduct>();
-            Contact contact = null;
+            Contact? contact = null;
             bool isValid = true;
             string invalidReason = string.Empty;
 
@@ -63,42 +62,99 @@ namespace domain.operations
             );
             return result;
         }*/
+        public static List<Product> GetShoppingCartItems(IShoppingCart shoppingCart)
+        {
+            switch (shoppingCart)
+            {
+                case ValidShoppingCart validShoppingCart:
+                    return validShoppingCart.ValidatedProducts
+                        .Select(validProduct => new Product(validProduct.Code, validProduct.Quantity, validProduct.Price))
+                        .ToList();
+                case EmptyShoppingCart:
+                    return new List<Product>();
+                case UnvalidatedShoppingCart unvalidatedShoppingCart:
+                    return unvalidatedShoppingCart.UnvalidatedProducts
+                        .Select(unvalidatedProduct => new Product(unvalidatedProduct.Code, unvalidatedProduct.Quantity, unvalidatedProduct.Price))
+                        .ToList();
+                case InvalidShoppingCart invalidShoppingCart:
+                    return invalidShoppingCart.InvalidProducts
+                        .Select(invalidProduct => new Product(invalidProduct.Code, invalidProduct.Quantity, invalidProduct.Price))
+                        .ToList();
+                case PaidShoppingCart paidShoppingCart:
+                    return paidShoppingCart.ValidatedProducts
+                        .Select(validProduct => new Product(validProduct.Code, validProduct.Quantity, validProduct.Price))
+                        .ToList();
+                case CalculatedShoppingCart calculatedShoppingCart:
+                    return calculatedShoppingCart.ValidatedProducts
+                        .Select(validProduct => new Product(validProduct.Code, validProduct.Quantity, validProduct.Price))
+                        .ToList();
+                default:
+                    throw new ArgumentException("Unknown shopping cart type");
+            }
+        }
+        public static IShoppingCart AddProductToShoppingCart(IShoppingCart shoppingCart, UnvalidatedProduct product)
+        {
+            switch (shoppingCart)
+            {
+                case ValidShoppingCart:
+                    return shoppingCart;
+                case EmptyShoppingCart emptyShoppingCart:
+                    List<UnvalidatedProduct> emptyProducts = new List<UnvalidatedProduct>(emptyShoppingCart.UnvalidatedProducts);
+                    emptyProducts.Add(product);
+                    return new UnvalidatedShoppingCart(emptyProducts, emptyShoppingCart.Contact);
+                case UnvalidatedShoppingCart unvalidatedShoppingCart:
+                    List<UnvalidatedProduct> unvalidatedProducts = new List<UnvalidatedProduct>(unvalidatedShoppingCart.UnvalidatedProducts);
+                    unvalidatedProducts.Add(product);
+                    return new UnvalidatedShoppingCart(unvalidatedProducts, unvalidatedShoppingCart.Contact);
+                case InvalidShoppingCart:
+                case PaidShoppingCart:
+                case CalculatedShoppingCart:
+                    return shoppingCart;
+                default:
+                    throw new ArgumentException("Unknown shopping cart type");
+            }
+        }
+        public static IShoppingCart RemoveProductFromShoppingCart(IShoppingCart shoppingCart, string productCode)
+        {
+            switch (shoppingCart)
+            {
+                case ValidShoppingCart:
+                case EmptyShoppingCart:
+                    return shoppingCart;
+                case UnvalidatedShoppingCart unvalidatedShoppingCart:
+                    List<UnvalidatedProduct> unvalidatedProducts = unvalidatedShoppingCart.UnvalidatedProducts
+                        .Where(unvalidatedProduct => unvalidatedProduct.Code != productCode)
+                        .ToList();
+                    return new UnvalidatedShoppingCart(unvalidatedProducts, unvalidatedShoppingCart.Contact);
+                case InvalidShoppingCart:
+                case PaidShoppingCart:
+                case CalculatedShoppingCart:
+                    return shoppingCart;
+                default:
+                    throw new ArgumentException("Unknown shopping cart type");
+            }
+        }
         public static IShoppingCart CalculateShoppingCart(IShoppingCart shoppingCart)
         {
-            if(shoppingCart is ValidShoppingCart validShoppingCart)
+            switch (shoppingCart)
             {
-                double finalPrice = 0.0;
-                foreach(ValidatedProduct product in validShoppingCart.ValidatedProducts)
-                {
-                    double productPrice = ((Price.MonetaryUnits)product.Price).number;
-                    int productQuantity = ((Quantity.Units)product.Quantity).number;
-                    finalPrice += productPrice * productQuantity;
-                }
-                return new CalculatedShoppingCart(validShoppingCart.ValidatedProducts, validShoppingCart.Contact, finalPrice);
-            }
-            else if (shoppingCart is EmptyShoppingCart)
-            {
-                return shoppingCart;
-            }
-            else if (shoppingCart is UnvalidatedShoppingCart)
-            {
-                return shoppingCart;
-            }
-            else if (shoppingCart is InvalidShoppingCart invalidShoppingCart)
-            {
-                return invalidShoppingCart;
-            }
-            else if (shoppingCart is PaidShoppingCart)
-            {
-                return shoppingCart;
-            }
-            else if (shoppingCart is CalculatedShoppingCart)
-            {
-                return shoppingCart;
-            }
-            else
-            {
-                throw new ArgumentException("Unknown shopping cart type");
+                case ValidShoppingCart validShoppingCart:
+                    double finalPrice = 0.0;
+                    foreach (ValidatedProduct product in validShoppingCart.ValidatedProducts)
+                    {
+                        double productPrice = ((Price.MonetaryUnits)product.Price).number;
+                        int productQuantity = ((Quantity.Units)product.Quantity).number;
+                        finalPrice += productPrice * productQuantity;
+                    }
+                    return new CalculatedShoppingCart(validShoppingCart.ValidatedProducts, validShoppingCart.Contact, finalPrice);
+                case EmptyShoppingCart:
+                case UnvalidatedShoppingCart:
+                case InvalidShoppingCart:
+                case PaidShoppingCart:
+                case CalculatedShoppingCart:
+                    return shoppingCart;
+                default:
+                    throw new ArgumentException("Unknown shopping cart type");
             }
         }
     }
