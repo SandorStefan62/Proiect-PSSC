@@ -1,13 +1,13 @@
-﻿using Proiect.domain.exceptions;
+﻿using domain.exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Proiect.domain.models.Price;
-using static Proiect.domain.models.Quantity;
+using static domain.models.Price;
+using static domain.models.Quantity;
 
-namespace Proiect.domain.models
+namespace domain.models
 {
     public record class Product
     {
@@ -22,15 +22,29 @@ namespace Proiect.domain.models
         }
         private static IQuantity ConvertToQuantity(object quantity)
         {
-            if(quantity is int intValue)
+            if (quantity is int intValue)
             {
-                return new Units(intValue);
-            }
-            else if(quantity is string stringValue)
-            {
-                if(int.TryParse(stringValue, out int parsedNumber))
+                if(intValue > 0)
                 {
-                    return new Units(parsedNumber);
+                    return new Units(intValue);
+                }
+                else
+                {
+                    throw new InvalidProductException("Quantity must not be negative");
+                }
+            }
+            else if (quantity is string stringValue)
+            {
+                if (int.TryParse(stringValue, out int parsedNumber))
+                {
+                    if (parsedNumber > 0)
+                    {
+                        return new Units(parsedNumber);
+                    }
+                    else
+                    {
+                        throw new InvalidProductException("Quantity must not be negative");
+                    }
                 }
                 else
                 {
@@ -47,17 +61,38 @@ namespace Proiect.domain.models
         {
             if (price is double doubleValue)
             {
-                return new MonetaryUnits(doubleValue);
+                if (doubleValue > 0)
+                {
+                    return new MonetaryUnits(doubleValue);
+                }
+                else
+                {
+                    throw new InvalidProductException("Price must not be negative");
+                }
             }
-            else if(price is int intValue)
+            else if (price is int intValue)
             {
-                return new MonetaryUnits((double)intValue);
+                if (intValue > 0)
+                {
+                    return new MonetaryUnits(intValue);
+                }
+                else
+                {
+                    throw new InvalidProductException("Price must not be negative");
+                }
             }
             else if (price is string stringValue)
             {
                 if (double.TryParse(stringValue, out double parsedNumber))
                 {
-                    return new MonetaryUnits(parsedNumber);
+                    if (parsedNumber > 0)
+                    {
+                        return new MonetaryUnits(parsedNumber);
+                    }
+                    else
+                    {
+                        throw new InvalidProductException("Price must not be negative");
+                    }
                 }
                 else
                 {
@@ -76,7 +111,7 @@ namespace Proiect.domain.models
                 result = new Product(codeString, quantityString, priceString);
                 return true;
             }
-            catch(InvalidProductException)
+            catch (InvalidProductException)
             {
                 result = null;
                 return false;

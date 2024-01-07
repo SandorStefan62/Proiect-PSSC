@@ -1,12 +1,14 @@
-﻿using System;
+﻿using CSharp.Choices;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Proiect.domain.models
+namespace domain.models
 {
-    public static partial class ShoppingCart
+    [AsChoice]
+    public partial class ShoppingCart
     {
         public interface IShoppingCart { }
         public record EmptyShoppingCart : IShoppingCart
@@ -46,6 +48,18 @@ namespace Proiect.domain.models
             }
             public List<ValidatedProduct> ValidatedProducts { get; init; }
             public Contact Contact { get; init; }
+        }
+        public record CalculatedShoppingCart : IShoppingCart
+        {
+            internal CalculatedShoppingCart(List<ValidatedProduct> validatedProducts, Contact contact, double finalPrice)
+            {
+                this.ValidatedProducts = validatedProducts;
+                this.Contact = contact;
+                this.FinalPrice = finalPrice;
+            }
+            public List<ValidatedProduct> ValidatedProducts { get; init; }
+            public Contact Contact { get; init; }
+            public double FinalPrice { get; init; }
         }
         public record PaidShoppingCart : IShoppingCart
         {

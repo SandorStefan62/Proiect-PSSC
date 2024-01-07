@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Proiect.domain.models.Quantity;
+using static domain.models.Quantity;
+using static domain.models.Price;
 
-namespace Proiect.domain.models
+namespace domain.models
 {
-    public record ValidatedProduct(string Code, IQuantity Quantity, double Price);
+    public record ValidatedProduct(string Code, IQuantity Quantity, IPrice Price);
 }

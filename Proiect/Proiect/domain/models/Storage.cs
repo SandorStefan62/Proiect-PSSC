@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Proiect.domain.models
+namespace domain.models
 {
     internal class Storage
     {
-        public static List<Product> LoadProducts()
+        public static List<UnvalidatedProduct> LoadProducts()
         {
-            return new List<Product>
+            return new List<UnvalidatedProduct>
             {
                 new("Product 1", "12", 100.0),
                 new("Product 2", 22, 102),

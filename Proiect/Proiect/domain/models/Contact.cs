@@ -1,11 +1,11 @@
-﻿using Proiect.domain.exceptions;
+﻿using domain.exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Proiect.domain.models
+namespace domain.models
 {
     public record Contact
     {
@@ -52,7 +52,19 @@ namespace Proiect.domain.models
 
             this.Address = address;
         }
-
+        public static bool TryParse(string firstName, string lastName, string telephoneNumber, string address, out Contact? result)
+        {
+            try
+            {
+                result = new Contact(firstName, lastName, telephoneNumber, address);
+                return true;
+            }
+            catch(InvalidContactException)
+            {
+                result = null;
+                return false;
+            }
+        }
         public override string ToString()
         {
             return $"[FirstName: {this.FirstName}, LastName: {this.LastName}, TelephoneNumber: {this.TelephoneNumber}, Address: {this.Address}]";

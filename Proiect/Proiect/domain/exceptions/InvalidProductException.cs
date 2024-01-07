@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace Proiect.domain.exceptions
+namespace domain.exceptions
 {
     internal class InvalidProductException : Exception
     {

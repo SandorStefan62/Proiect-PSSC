@@ -1,24 +1,67 @@
-/*    using Proiect.domain.models;
-    using static Proiect.domain.models.ShoppingCart;
+using domain.models;
+using static domain.models.ShoppingCart;
+using CSharp.Choices;
 
-    namespace Proiect.domain.operations
+namespace domain.operations
+{
+    public static class ShoppingCartOperations
     {
-        public static class ShoppingCartOperations
+        public static IShoppingCart ValidateShoppingCart(UnvalidatedShoppingCart unvalidatedShoppingCart)
         {
-            public static IShoppingCart ValidateShoppingCart(UnvalidatedShoppingCart unvalidatedShoppingCart)
-            {
-                List<ValidatedProduct> validatedProducts = new List<ValidatedProduct>();
-                Contact contact = null;
-                bool isValid = false;
-                string invalidReason = string.Empty;
+            List<ValidatedProduct> validatedProducts = new List<ValidatedProduct>();
+            Contact contact = null;
+            bool isValid = true;
+            string invalidReason = string.Empty;
 
-                foreach(UnvalidatedProduct unvalidatedProduct in unvalidatedShoppingCart.UnvalidatedProducts )
+            foreach (UnvalidatedProduct unvalidatedProduct in unvalidatedShoppingCart.UnvalidatedProducts)
+            {
+                if (!Product.TryParse(unvalidatedProduct.Code, unvalidatedProduct.Quantity, unvalidatedProduct.Price, out Product? parsedProduct))
                 {
-                    if(!Product.TryParse(unvalidatedProduct.Code, unvalidatedProduct.Quantity, unvalidatedProduct.Price, out var parsedProduct))
-                    {
-                        invalidReason = $"Invalid product format: [{unvalidatedProduct.Code}, {unvalidatedProduct.Quantity}, {unvalidatedProduct.Price}]";
-                    }
+                    invalidReason = $"Invalid product format: [{unvalidatedProduct.Code}, {unvalidatedProduct.Quantity}, {unvalidatedProduct.Price}]";
+                    Console.WriteLine(invalidReason);
+                    isValid = false;
+                    break;
                 }
+                ValidatedProduct validatedProduct = new ValidatedProduct(parsedProduct.Code, parsedProduct.Quantity, parsedProduct.Price);
+                validatedProducts.Add(validatedProduct);
+            }
+            if(!Contact.TryParse(unvalidatedShoppingCart.Contact.FirstName, unvalidatedShoppingCart.Contact.LastName, unvalidatedShoppingCart.Contact.TelephoneNumber, unvalidatedShoppingCart.Contact.Address, out Contact? result))
+            {
+                invalidReason = $"Invalid contact format: [{unvalidatedShoppingCart.Contact.FirstName}, {unvalidatedShoppingCart.Contact.LastName}, {unvalidatedShoppingCart.Contact.TelephoneNumber}, {unvalidatedShoppingCart.Contact.Address}]";
+                Console.WriteLine(invalidReason);
+                isValid = false;
+            }
+            contact = result;
+            if (isValid)
+            {
+                return new ValidShoppingCart(validatedProducts, contact);
+            }
+            else
+            {
+                return new InvalidShoppingCart(unvalidatedShoppingCart.UnvalidatedProducts, unvalidatedShoppingCart.Contact, invalidReason);
             }
         }
-    }*/
+        /*public static IShoppingCart CalculateShoppingCart(IShoppingCart shoppingCart)
+        {
+            var result = shoppingCart.Match(
+                emptyShoppingCart => emptyShoppingCart,
+                unvalidatedShoppingCart => unvalidatedShoppingCart,
+                invalidShoppingCart => invalidShoppingCart,
+                validShoppingCart =>
+                {
+                    double finalPrice = 0.0;
+                    foreach(ValidatedProduct product in validShoppingCart.ValidatedProducts)
+                    {
+                        double productPrice = ((Price.MonetaryUnits)product.Price).number;
+                        int productQuantity = ((Quantity.Units)product.Quantity).number;
+                        finalPrice += productPrice * productQuantity;
+                    }
+                    return new CalculatedShoppingCart(validShoppingCart.Products, validShoppingCart.Contact, finalPrice);
+                },
+                paidShoppingCart => paidShoppingCart,
+                calculatedShoppingCart => calculatedShoppingCart
+            );
+            return result;
+        }*/
+    }
+}
