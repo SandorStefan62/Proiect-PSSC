@@ -14,14 +14,12 @@ namespace Proiect
             UnvalidatedShoppingCart shoppingCart = new UnvalidatedShoppingCart(inventory, contact);
             IShoppingCart shopping = ValidateShoppingCart(shoppingCart);
             Console.WriteLine("\n" + shopping.GetType());
-            if(shopping is ValidShoppingCart validShopping)
+            IShoppingCart final = CalculateShoppingCart(shopping);
+            if(final is CalculatedShoppingCart calculatedShoppingCart)
             {
-                foreach(ValidatedProduct product in validShopping.ValidatedProducts)
-                {
-                    Console.WriteLine(product.ToString() + " " + product.Quantity.GetType() + " " + product.Price.GetType() + "\n");
-                }
+                Console.WriteLine(calculatedShoppingCart.FinalPrice);
             }
-            //IShoppingCart final = CalculateShoppingCart(shopping);
+            Console.WriteLine(final.GetType());
         }
     }
 }

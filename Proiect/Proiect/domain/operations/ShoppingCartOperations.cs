@@ -63,5 +63,43 @@ namespace domain.operations
             );
             return result;
         }*/
+        public static IShoppingCart CalculateShoppingCart(IShoppingCart shoppingCart)
+        {
+            if(shoppingCart is ValidShoppingCart validShoppingCart)
+            {
+                double finalPrice = 0.0;
+                foreach(ValidatedProduct product in validShoppingCart.ValidatedProducts)
+                {
+                    double productPrice = ((Price.MonetaryUnits)product.Price).number;
+                    int productQuantity = ((Quantity.Units)product.Quantity).number;
+                    finalPrice += productPrice * productQuantity;
+                }
+                return new CalculatedShoppingCart(validShoppingCart.ValidatedProducts, validShoppingCart.Contact, finalPrice);
+            }
+            else if (shoppingCart is EmptyShoppingCart)
+            {
+                return shoppingCart;
+            }
+            else if (shoppingCart is UnvalidatedShoppingCart)
+            {
+                return shoppingCart;
+            }
+            else if (shoppingCart is InvalidShoppingCart invalidShoppingCart)
+            {
+                return invalidShoppingCart;
+            }
+            else if (shoppingCart is PaidShoppingCart)
+            {
+                return shoppingCart;
+            }
+            else if (shoppingCart is CalculatedShoppingCart)
+            {
+                return shoppingCart;
+            }
+            else
+            {
+                throw new ArgumentException("Unknown shopping cart type");
+            }
+        }
     }
 }
