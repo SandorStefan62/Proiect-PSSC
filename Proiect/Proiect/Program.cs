@@ -8,7 +8,7 @@ namespace Proiect
     {
         static void Main(string[] args)
         {
-            List<UnvalidatedProduct> products = Storage.LoadProducts();
+            /*List<UnvalidatedProduct> products = AvailableProducts.LoadProducts();
             List<Product> checkProducts;
             Contact contact = new Contact("asdas", "belfast", "1234567890", "asaada");
             IShoppingCart shoppingCart = new EmptyShoppingCart(contact);
@@ -40,7 +40,14 @@ namespace Proiect
                 default:
                     Console.WriteLine("Unknown or unchanged shopping cart state");
                     break;
-            }
+            }*/
+
+            AvailableProducts availableProducts = new AvailableProducts();
+            availableProducts.CheckProducts();
+            availableProducts.Products.ForEach(product => { Console.WriteLine(product.Quantity.GetType()); });
+            UnvalidatedProduct product = availableProducts.OrderProduct("Product 1", 10);
+            availableProducts.CheckProducts();
+            Console.WriteLine(product.ToString());
         }
     }
 }
