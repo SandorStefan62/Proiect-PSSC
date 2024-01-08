@@ -22,28 +22,35 @@ namespace domain.models
         }
         private static IQuantity ConvertToQuantity(object quantity)
         {
-            if (quantity is int intValue)
+            try
             {
-                if(intValue > 0)
+                if (quantity is int intValue)
                 {
-                    return new Units(intValue);
-                }
-                else
-                {
-                    throw new InvalidProductException("Quantity must not be negative");
-                }
-            }
-            else if (quantity is string stringValue)
-            {
-                if (int.TryParse(stringValue, out int parsedNumber))
-                {
-                    if (parsedNumber > 0)
+                    if (intValue > 0)
                     {
-                        return new Units(parsedNumber);
+                        return new Units(intValue);
                     }
                     else
                     {
                         throw new InvalidProductException("Quantity must not be negative");
+                    }
+                }
+                else if (quantity is string stringValue)
+                {
+                    if (int.TryParse(stringValue, out int parsedNumber))
+                    {
+                        if (parsedNumber > 0)
+                        {
+                            return new Units(parsedNumber);
+                        }
+                        else
+                        {
+                            throw new InvalidProductException("Quantity must not be negative");
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidProductException("Invalid quantity");
                     }
                 }
                 else
@@ -51,47 +58,73 @@ namespace domain.models
                     throw new InvalidProductException("Invalid quantity");
                 }
             }
-            else
+            catch (InvalidProductException exception)
             {
-                throw new InvalidProductException("Invalid quantity");
+                Console.WriteLine($"Error converting quantity: {exception.Message}");
+                Console.WriteLine($"Problematic quantity: {quantity}");
+                Console.WriteLine($"Quantity type: {quantity.GetType()}");
+                if(quantity is string stringValue)
+                {
+                    Console.WriteLine($"Parsed string value: {stringValue}");
+                }
+                throw;
             }
+            
         }
 
         private static IPrice ConvertToPrice(object price)
         {
-            if (price is double doubleValue)
+            try
             {
-                if (doubleValue > 0)
+                if (price is MonetaryUnits monetaryUnits)
                 {
-                    return new MonetaryUnits(doubleValue);
-                }
-                else
-                {
-                    throw new InvalidProductException("Price must not be negative");
-                }
-            }
-            else if (price is int intValue)
-            {
-                if (intValue > 0)
-                {
-                    return new MonetaryUnits(intValue);
-                }
-                else
-                {
-                    throw new InvalidProductException("Price must not be negative");
-                }
-            }
-            else if (price is string stringValue)
-            {
-                if (double.TryParse(stringValue, out double parsedNumber))
-                {
-                    if (parsedNumber > 0)
+                    if (monetaryUnits.number > 0)
                     {
-                        return new MonetaryUnits(parsedNumber);
+                        return monetaryUnits;
                     }
                     else
                     {
                         throw new InvalidProductException("Price must not be negative");
+                    }
+                }
+                else if (price is double doubleValue)
+                {
+                    if (doubleValue > 0)
+                    {
+                        return new MonetaryUnits(doubleValue);
+                    }
+                    else
+                    {
+                        throw new InvalidProductException("Price must not be negative");
+                    }
+                }
+                else if (price is int intValue)
+                {
+                    if (intValue > 0)
+                    {
+                        return new MonetaryUnits(intValue);
+                    }
+                    else
+                    {
+                        throw new InvalidProductException("Price must not be negative");
+                    }
+                }
+                else if (price is string stringValue)
+                {
+                    if (double.TryParse(stringValue, out double parsedNumber))
+                    {
+                        if (parsedNumber > 0)
+                        {
+                            return new MonetaryUnits(parsedNumber);
+                        }
+                        else
+                        {
+                            throw new InvalidProductException("Price must not be negative");
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidProductException("Invalid price");
                     }
                 }
                 else
@@ -99,9 +132,16 @@ namespace domain.models
                     throw new InvalidProductException("Invalid price");
                 }
             }
-            else
+            catch (InvalidProductException ex)
             {
-                throw new InvalidProductException("Invalid price");
+                Console.WriteLine($"Error converting price: {ex.Message}");
+                Console.WriteLine($"Problematic price: {price}");
+                Console.WriteLine($"Price type: {price.GetType()}");
+                if (price is string stringValue)
+                {
+                    Console.WriteLine($"Parsed string value: {stringValue}");
+                }
+                throw;
             }
         }
         public static bool TryParse(string codeString, object quantityString, object priceString, out Product? result)
