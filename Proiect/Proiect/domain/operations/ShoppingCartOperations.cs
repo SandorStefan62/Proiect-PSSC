@@ -157,5 +157,31 @@ namespace domain.operations
                     throw new ArgumentException("Unknown shopping cart type");
             }
         }
+        public static IShoppingCart OrderShoppingCart(IShoppingCart shoppingCart)
+        {
+            switch (shoppingCart)
+            {
+                case ValidShoppingCart validShoppingCart:
+                    IShoppingCart calculatedShoppingCartVar = CalculateShoppingCart(validShoppingCart);
+                    if(calculatedShoppingCartVar is CalculatedShoppingCart calculated)
+                    {
+                        DateTime checkoutDateValidCase = DateTime.Now;
+                        return new PaidShoppingCart(calculated.ValidatedProducts, calculated.Contact, calculated.FinalPrice, checkoutDateValidCase);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Failed to calculate shopping cart.");
+                    }
+                case EmptyShoppingCart:
+                case UnvalidatedShoppingCart:
+                case InvalidShoppingCart:
+                case PaidShoppingCart:
+                    return shoppingCart;
+                case CalculatedShoppingCart calculatedShoppingCart:
+                    DateTime checkoutDateCalculatedCase = DateTime.Now;
+                    return new PaidShoppingCart(calculatedShoppingCart.ValidatedProducts, calculatedShoppingCart.Contact, calculatedShoppingCart.FinalPrice, checkoutDateCalculatedCase);
+                default: throw new ArgumentException("Unknown shopping cart type");
+            }
+        }
     }
 }

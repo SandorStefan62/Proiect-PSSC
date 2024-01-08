@@ -67,14 +67,16 @@ namespace domain.models
         }
         public record PaidShoppingCart : IShoppingCart
         {
-            internal PaidShoppingCart(List<ValidatedProduct> validatedProducts, Contact contact, DateTime checkoutDate)
+            internal PaidShoppingCart(List<ValidatedProduct> validatedProducts, Contact contact, double finalPrice, DateTime checkoutDate)
             {
                 this.ValidatedProducts= validatedProducts;
                 this.Contact = contact;
+                this.FinalPrice = finalPrice;
                 this.CheckoutDate = checkoutDate;
             }
             public List<ValidatedProduct> ValidatedProducts { get; init; }
             public Contact Contact { get; init; }
+            public double FinalPrice { get; init; }
             public DateTime CheckoutDate {  get; init; }
         }
     }
