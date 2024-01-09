@@ -1,13 +1,13 @@
-﻿using domain.exceptions;
+﻿using Proiect.Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static domain.models.Price;
-using static domain.models.Quantity;
+using static Proiect.Domain.Models.Price;
+using static Proiect.Domain.Models.Quantity;
 
-namespace domain.models
+namespace Proiect.Domain.Models
 {
     public record class Product
     {
@@ -92,6 +92,17 @@ namespace domain.models
                     if (doubleValue > 0)
                     {
                         return new MonetaryUnits(doubleValue);
+                    }
+                    else
+                    {
+                        throw new InvalidProductException("Price must not be negative");
+                    }
+                }
+                else if (price is decimal decimalValue)
+                {
+                    if (decimalValue > 0)
+                    {
+                        return new MonetaryUnits(Decimal.ToDouble(decimalValue));
                     }
                     else
                     {

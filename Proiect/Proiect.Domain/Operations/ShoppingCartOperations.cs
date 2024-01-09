@@ -1,7 +1,7 @@
-using domain.models;
-using static domain.models.ShoppingCart;
+using Proiect.Domain.Models;
+using static Proiect.Domain.Models.ShoppingCart;
 
-namespace domain.operations
+namespace Proiect.Domain.Operations
 {
     public static class ShoppingCartOperations
     {

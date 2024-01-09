@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace domain.models
+namespace Proiect.Data.Repository
 {
-    public record UnvalidatedProduct(string Code, object Quantity, object Price);
+    public class OrderHeaderRepository
+    {
+    }
 }

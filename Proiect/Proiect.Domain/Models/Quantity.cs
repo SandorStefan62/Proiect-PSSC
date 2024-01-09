@@ -1,6 +1,6 @@
 using CSharp.Choices;
 
-namespace domain.models
+namespace Proiect.Domain.Models
 {
     [AsChoice]
     public static class Quantity

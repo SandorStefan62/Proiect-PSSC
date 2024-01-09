@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace domain.models
+namespace Proiect.Domain.Models
 {
     [AsChoice]
     public partial class ShoppingCart
@@ -13,7 +13,7 @@ namespace domain.models
         public interface IShoppingCart { }
         public record EmptyShoppingCart : IShoppingCart
         {
-            internal EmptyShoppingCart(Contact contact)
+            public EmptyShoppingCart(Contact contact)
             {
                 this.UnvalidatedProducts = new List<UnvalidatedProduct>();
                 this.Contact = contact;

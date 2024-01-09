@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace domain.models
+namespace Proiect.Domain.Models
 {
     public record Order
     {

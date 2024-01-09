@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace domain.exceptions
+namespace Proiect.Domain.Exceptions
 {
     internal class InvalidContactException : Exception
     {

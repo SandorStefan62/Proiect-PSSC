@@ -3,15 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static domain.models.Quantity;
+using static Proiect.Domain.Models.Quantity;
 
-namespace domain.models
+namespace Proiect.Domain.Models
 {
-    internal class AvailableProducts
+    public class AvailableProducts
     {
         public AvailableProducts()
         {
             this.Products = LoadProducts();
+        }
+        public AvailableProducts(List<Product> products)
+        {
+            this.Products = products;
         }
         public List<Product> Products { get; set; }
         public void CheckProducts()
