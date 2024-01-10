@@ -8,5 +8,8 @@ using static Proiect.Domain.Models.Quantity;
 
 namespace Proiect.Domain.Models
 {
-    public record ValidatedProduct(string Code, IQuantity Quantity, IPrice Price);
+    public record ValidatedProduct(string Code, IQuantity Quantity, IPrice Price)
+    {
+        public int OrderId { get; set; }
+    }
 }

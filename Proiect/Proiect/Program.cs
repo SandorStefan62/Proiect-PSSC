@@ -15,16 +15,16 @@ namespace Proiect
         private static string ConnectionString = "Integrated Security=true;Server=LAPTOP-DRAGOS\\SQLEXPRESS;Database=master;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
         static void Main(string[] args)
         {
+
             //DataBase Initialization
-            var dbContextBuilder = new DbContextOptionsBuilder<OrderContext>()
-            .UseSqlServer(ConnectionString);
+            var dbContextBuilder = new DbContextOptionsBuilder<OrderContext>();
             OrderContext orderContext = new(dbContextBuilder.Options);
-            //OrderHeaderRepository orderHeaderRepositroy = new OrderHeaderRepository(orderContext);
+            OrderHeaderRepository orderHeaderRepositroy = new OrderHeaderRepository(orderContext);
             //OrderLineRepository orderLineRepository = new OrderLineRepository(orderContext);
             ProductRepository productRepository = new ProductRepository(orderContext);
 
             //init
-            Contact contact = new Contact("asd", "asd", "1111111111", "asd");
+            Contact contact = new Contact("FirstName", "LastName", "1111111111", "Adresa");
             IShoppingCart shoppingCart = new EmptyShoppingCart(contact);
             AvailableProducts availableProductsDB = new AvailableProducts(productRepository.TryGetAllProducts().Result);
             AvailableProducts availableProducts = new AvailableProducts();
@@ -33,7 +33,7 @@ namespace Proiect
             //checks the available stock
             availableProducts.CheckProducts();
             availableProductsDB.CheckProducts();
-            availableProducts.Products.ForEach(product => { Console.WriteLine(product.Quantity.GetType()); });
+            availableProductsDB.Products.ForEach(product => { Console.WriteLine(product.Quantity.GetType()); });
             Console.WriteLine("\n\n");
 
             //two products to be ordered
@@ -71,6 +71,8 @@ namespace Proiect
 
             //validates shopping cart
             shoppingCart = ValidateShoppingCart((UnvalidatedShoppingCart)shoppingCart);
+            ValidShoppingCart validCart = (ValidShoppingCart)shoppingCart;
+            orderHeaderRepositroy.SaveOrderHeader(validCart);
             Console.WriteLine(shoppingCart.GetType());
             Console.WriteLine("\n\n");
 

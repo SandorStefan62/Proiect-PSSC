@@ -11,5 +11,9 @@ namespace Proiect.Data.Model
         public int OrderId { get; set; }
         public decimal Total { get; set; }
         public string Adress { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string TelephoneNumber { get; set; }
+        public DateTime CheckoutDate { get; set; }
     }
 }

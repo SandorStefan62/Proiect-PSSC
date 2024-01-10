@@ -34,6 +34,7 @@ namespace Proiect.Domain.Operations
             if (isValid)
             {
                 return new ValidShoppingCart(validatedProducts, contact);
+
             }
             else
             {

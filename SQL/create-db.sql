@@ -14,6 +14,10 @@ GO
 CREATE TABLE [dbo].[OrderHeader](
 	[OrderId] [int] IDENTITY(1,1) NOT NULL,
 	[Adress] [varchar](50) NOT NULL,
+	[FirstName] [varchar](50) NOT NULL,
+	[LastName] [varchar](50) NOT NULL,
+	[TelephoneNumber] [varchar](50) NOT NULL,
+	[CheckoutDate] [datetime],
 	[Total] [decimal](18, 0) NOT NULL,
  CONSTRAINT [PK_OrderHeader] PRIMARY KEY CLUSTERED 
 (
