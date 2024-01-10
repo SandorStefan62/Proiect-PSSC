@@ -12,7 +12,8 @@ namespace Proiect
 {
     class Program
     {
-        private static string ConnectionString = "Integrated Security=true;Server=LAPTOP-DRAGOS\\SQLEXPRESS;Database=master;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
+        private static string ConnectionString1 = "Integrated Security=true;Server=LAPTOP-DRAGOS\\SQLEXPRESS;Database=master;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
+        private static string ConnectionString = "Integrated Security=true;Server=localhost\\SQLEXPRESS;Database=master;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
         static void Main(string[] args)
         {
             //DataBase Initialization
@@ -31,20 +32,20 @@ namespace Proiect
             List<Product> shoppingCartProducts = new List<Product>();
 
             //checks the available stock
-            availableProducts.CheckProducts();
             availableProductsDB.CheckProducts();
-            availableProducts.Products.ForEach(product => { Console.WriteLine(product.Quantity.GetType()); });
+            //availableProductsDB.CheckProducts();
+            availableProductsDB.Products.ForEach(product => { Console.WriteLine(product.Quantity.GetType()+" "+product.Price.GetType()); });
             Console.WriteLine("\n\n");
 
             //two products to be ordered
-            UnvalidatedProduct product1 = availableProducts.OrderProduct("Product 1", 10);
-            UnvalidatedProduct product2 = availableProducts.OrderProduct("Product 2", 5);
-            //UnvalidatedProduct product1 = availableProducts.OrderProduct("Pix", 10);
-            //UnvalidatedProduct product2 = availableProducts.OrderProduct("Telefon", 1);
+            //UnvalidatedProduct product1 = availableProductsDB.OrderProduct("Product 1", 10);
+            //UnvalidatedProduct product2 = availableProductsDB.OrderProduct("Product 2", 5);
+            UnvalidatedProduct product1 = availableProductsDB.OrderProduct("Pix", 10);
+            UnvalidatedProduct product2 = availableProductsDB.OrderProduct("Telefon", 1);
 
             //checks if quantity has been modified successfully
-            availableProducts.CheckProducts();
-            availableProducts.Products.ForEach(product => { Console.WriteLine(product.Quantity.GetType()); });
+            availableProductsDB.CheckProducts();
+            availableProductsDB.Products.ForEach(product => { Console.WriteLine(product.Quantity.GetType()); });
             Console.WriteLine("\n\n");
             
             //adds ordered products to shopping cart
@@ -57,8 +58,8 @@ namespace Proiect
             Console.WriteLine("\n\n");
 
             //removes one item from the shopping cart
-            shoppingCart = RemoveProductFromShoppingCart(shoppingCart, "Product 1");
-            //shoppingCart = RemoveProductFromShoppingCart(shoppingCart, "Telefon");
+            //shoppingCart = RemoveProductFromShoppingCart(shoppingCart, "Product 1");
+            shoppingCart = RemoveProductFromShoppingCart(shoppingCart, "Telefon");
 
             //checks if item has been removed successfully
             shoppingCartProducts = GetShoppingCartItems(shoppingCart);
