@@ -1,5 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Proiect.Api.Models;
+using Proiect.Data.Repository;
 using Proiect.Domain.Models;
+using Proiect.Domain.Repository;
+using Proiect.Domain.Workflows;
+using static Proiect.Domain.Models.ShoppingCart;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -10,47 +15,58 @@ namespace Proiect.Api.Controllers
     public class ShopingCartController : ControllerBase
     {
         public static Contact contactCurent;
+        public static IShoppingCart currentShoppingCart;
+        private readonly ValidationWorkflow validationWorkflow;
+        private readonly CalculateOrderWorkflow calculationWorkflow;
+        private readonly FinishOrderWorkflow finishWorkflow;
+
+        public ShopingCartController(ValidationWorkflow validationWorkflow,CalculateOrderWorkflow calculationWorkflow, FinishOrderWorkflow finishWorkflow)
+        {
+            this.validationWorkflow = validationWorkflow;
+            this.calculationWorkflow = calculationWorkflow;
+            this.finishWorkflow = finishWorkflow;
+        }
 
         // POST api/<ShopingCartController>
         [HttpPost("addContatct")]
-        public IActionResult AddContact([FromBody] Contact contact)
+        public IActionResult AddContact([FromBody] ContactInput contact)
         {
-            contactCurent = contact;
+            contactCurent = new Contact(contact.FirstName,contact.LastName,contact.TelephoneNumber,contact.Address);
             return Ok(contactCurent);
         }
 
         // POST api/<ShopingCartController>
         [HttpPost("addProductsToShoppingCartForCurrentUser")]
-        public IActionResult AddProductsToShoppingCartForCurrentUser([FromBody] List<UnvalidatedProduct> products)
+        public IActionResult AddProductsToShopingCartForCurrentUser([FromServices] IProductRepository productRepository, [FromServices] IOrderHeaderRepository orderHeaderRepository, [FromServices] IOrderLineRepository orderLineRepository, [FromBody] ProductInput[] products)
         {
-
-            return Ok(products);
+            AvailableProducts availableProducts = new AvailableProducts(productRepository.GetAllProducts());
+            List<UnvalidatedProduct> unvalidatedProducts = new List<UnvalidatedProduct>();
+            foreach (var product in products)
+            {
+                UnvalidatedProduct unvalidatedProduct = availableProducts.OrderProduct(product.Code, product.Quantity);
+                productRepository.DecreaseQuantity(product.Code, product.Quantity);
+                unvalidatedProducts.Add(unvalidatedProduct);
+            }
+            currentShoppingCart = validationWorkflow.Execute(contactCurent, unvalidatedProducts);
+            orderHeaderRepository.SaveOrderHeader((ValidShoppingCart)currentShoppingCart);
+            orderLineRepository.SaveProductsFromShoppingCart((ValidShoppingCart)currentShoppingCart);
+            return Ok(currentShoppingCart);
         }
 
-        // GET: api/<ShopingCartController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        [HttpPut("calculate/{adress}")]
+        public IActionResult CalculateShopingCart(string adress, [FromServices] IOrderHeaderRepository orderHeaderRepository)
         {
-            return new string[] { "value1", "value2" };
+            currentShoppingCart = calculationWorkflow.Execute(currentShoppingCart);
+            orderHeaderRepository.SaveCalculatedOrderHeader((CalculatedShoppingCart)currentShoppingCart);
+            return Ok(currentShoppingCart);
         }
 
-        // GET api/<ShopingCartController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpPut("pay/{adress}")]
+        public IActionResult PayShopingCart(string adress, [FromServices] IOrderHeaderRepository orderHeaderRepository)
         {
-            return "value";
-        }
-
-        // PUT api/<ShopingCartController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<ShopingCartController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            currentShoppingCart = finishWorkflow.Execute(currentShoppingCart);
+            orderHeaderRepository.SavePaidOrderHeader((PaidShoppingCart)currentShoppingCart);
+            return Ok(currentShoppingCart);
         }
     }
 }

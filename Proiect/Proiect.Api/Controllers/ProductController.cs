@@ -5,6 +5,8 @@ using Proiect.Data.Repository;
 using Proiect.Data;
 using Proiect.Domain.Models;
 using Proiect.Domain.Repository;
+using LanguageExt;
+using Proiect.Api.Models;
 
 namespace Proiect.Api.Controllers
 {
@@ -14,10 +16,19 @@ namespace Proiect.Api.Controllers
     {
 
         [HttpGet("getAllProducts")]
-        public IEnumerable<Product> Get([FromServices] IProductRepository productRepository)
+        public IEnumerable<ProductBody> Get([FromServices] IProductRepository productRepository)
         {
-            var products = productRepository.GetAllProducts();
-            return products;
+            List<Product> products = productRepository.GetAllProducts();
+            List<ProductBody> prettyProducts = new List<ProductBody>();
+            foreach (Product product in products) {
+                prettyProducts.Add(new ProductBody
+                {
+                    Price = product.Price.TryGetPrice(),
+                    Stock = product.Quantity.TryGetAmount(),
+                    Code = product.Code,
+                });
+            }
+            return prettyProducts;
         }
     }
 }

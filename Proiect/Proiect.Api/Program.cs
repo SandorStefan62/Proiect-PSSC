@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Proiect.Data;
 using Proiect.Data.Repository;
 using Proiect.Domain.Repository;
+using Proiect.Domain.Workflows;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,9 @@ builder.Services.AddControllers();
 builder.Services.AddTransient<IProductRepository,ProductRepository>();
 builder.Services.AddTransient<IOrderHeaderRepository, OrderHeaderRepository>();
 builder.Services.AddTransient<IOrderLineRepository, OrderLineRepository>();
+builder.Services.AddTransient<ValidationWorkflow>();
+builder.Services.AddTransient<CalculateOrderWorkflow>();
+builder.Services.AddTransient<FinishOrderWorkflow>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

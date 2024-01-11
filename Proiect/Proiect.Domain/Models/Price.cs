@@ -8,7 +8,9 @@ namespace Proiect.Domain.Models
 {
     public static class Price
     {
-        public interface IPrice { }
+        public interface IPrice {
+            decimal TryGetPrice();
+        }
 
         public record MonetaryUnits : IPrice
         {
@@ -19,6 +21,10 @@ namespace Proiect.Domain.Models
             public override string ToString()
             {
                 return $"{this.number}";
+            }
+            public decimal TryGetPrice()
+            {
+                return (decimal)this.number;
             }
             public double number { get; init; }
         }
@@ -31,6 +37,10 @@ namespace Proiect.Domain.Models
             public override string ToString()
             {
                 return $"{this.undefined}";
+            }
+            public decimal TryGetPrice()
+            {
+                return -1;
             }
             public string undefined { get; init; }
         }
