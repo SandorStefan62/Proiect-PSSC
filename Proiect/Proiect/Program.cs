@@ -8,15 +8,13 @@ using Microsoft.Extensions.Logging;
 using Proiect.Data;
 using Proiect.Domain.Repository;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using static Proiect.Domain.Models.Events.CartEvent;
-using System.Collections.Generic;
 
 
 namespace Proiect
 {
     class Program
     {
-        //private static string ConnectionString1 = "Integrated Security=true;Server=LAPTOP-DRAGOS\\SQLEXPRESS;Database=master;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
+        private static string ConnectionString1 = "Integrated Security=true;Server=LAPTOP-DRAGOS\\SQLEXPRESS;Database=master;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
         private static string ConnectionString = "Integrated Security=true;Server=localhost\\SQLEXPRESS;Database=master;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
         static void Main(string[] args)
         {
@@ -24,13 +22,10 @@ namespace Proiect
             var dbContextBuilder = new DbContextOptionsBuilder<OrderContext>()
             .UseSqlServer(ConnectionString);
             OrderContext orderContext = new(dbContextBuilder.Options);
-            //OrderHeaderRepository orderHeaderRepositroy = new OrderHeaderRepository(orderContext);
-            //OrderLineRepository orderLineRepository = new OrderLineRepository(orderContext);
             ProductRepository productRepository = new ProductRepository(orderContext);
 
             //init
             Contact contact = new Contact("asd", "asd", "1111111111", "asd");
-            IShoppingCart shoppingCart = new EmptyShoppingCart(contact);
             AvailableProducts availableProductsDB = new AvailableProducts(productRepository.TryGetAllProducts().Result);
             AvailableProducts availableProducts = new AvailableProducts();
             List<Product> shoppingCartProducts = new List<Product>();
@@ -38,20 +33,16 @@ namespace Proiect
             //checks the available stock
             availableProductsDB.CheckProducts();
             //availableProductsDB.CheckProducts();
-            availableProductsDB.Products.ForEach(product => { Console.WriteLine(product.Quantity.GetType()+" "+product.Price.GetType()); });
+            availableProductsDB.Products.ForEach(product => { Console.WriteLine(product.Quantity+" "+product.Price); });
             Console.WriteLine("\n\n");
-
-            //two products to be ordered
-            //UnvalidatedProduct product1 = availableProductsDB.OrderProduct("Product 1", 10);
-            //UnvalidatedProduct product2 = availableProductsDB.OrderProduct("Product 2", 5);
             
             UnvalidatedProduct product2 = availableProductsDB.OrderProduct("Telefon", 1);
             UnvalidatedProduct product1 = availableProductsDB.OrderProduct("Pix", 10);
 
             //checks if quantity has been modified successfully
             availableProductsDB.CheckProducts();
-            availableProductsDB.Products.ForEach(product => { Console.WriteLine(product.Quantity.GetType()); });
-            Console.WriteLine("\n\n");
+            availableProductsDB.Products.ForEach(product => { Console.WriteLine(product.Quantity); });
+            Console.WriteLine("\n\n"); 
 
             List<UnvalidatedProduct> orderedProducts = new List<UnvalidatedProduct>
             {
@@ -59,82 +50,52 @@ namespace Proiect
                 product2
             };
 
-            foreach (var product in orderedProducts)
+            //WORKFLOW: ADD PRODUCTS AND VALIDATE THEM
+            ValidationWorkflow valudationWorkflow = new ValidationWorkflow();
+            var validationResult = valudationWorkflow.Execute(contact, orderedProducts);
+
+            switch(validationResult)
             {
-                shoppingCart = AddProductToShoppingCart(shoppingCart, product);
-            }
-
-            //shoppingCart = AddProductToShoppingCart(shoppingCart, product1);
-            //shoppingCart = AddProductToShoppingCart(shoppingCart, product2);//workflow
-
-            //checks items in shopping cart
-            shoppingCartProducts = GetShoppingCartItems(shoppingCart);
-            shoppingCartProducts.ForEach(product => { Console.WriteLine(product.ToString()); });
-            Console.WriteLine("\n\n");
-
-            ////removes one item from the shopping cart
-            ////shoppingCart = RemoveProductFromShoppingCart(shoppingCart, "Product 1");
-            //shoppingCart = RemoveProductFromShoppingCart(shoppingCart, "Telefon");
-
-            //checks if item has been removed successfully
-            shoppingCartProducts = GetShoppingCartItems(shoppingCart);
-            shoppingCartProducts.ForEach(product => { Console.WriteLine(product.ToString()); });
-            Console.WriteLine("\n\n");
-
-            ////checks type of shopping cart
-            //Console.WriteLine(shoppingCart.GetType());
-            //Console.WriteLine("\n\n");
-
-
-            //GetCartItemsWorkflow workflowGetItem = new GetCartItemsWorkflow();
-            //var resultGetItem = workflowGetItem.InitialExecute(new InitialCartCommand(shoppingCart as EmptyShoppingCart), orderedProducts);
-
-            //switch (resultGetItem)
-            //{
-            //    case CartScucceededEvent success:
-            //        success.ValidatedProducts.ForEach(product => { Console.WriteLine(product.Quantity + " " + product.Price); });
-            //        break;
-            //    case CartFailedEvent failed:
-            //        Console.WriteLine(failed.Reason);
-            //        break;
-            //    default: Console.WriteLine("Error when getting items!"); break;
-            //}
-
-            ValidationWorkflow workflowValidation = new ValidationWorkflow();
-            var resultValidation = workflowValidation.Execute(new CartCommand(shoppingCart as UnvalidatedShoppingCart));
-
-            //orders shopping cart
-            switch(resultValidation)
-            {
-                case CartScucceededEvent success:
-                    Console.WriteLine("Final Price Is: " + success.FinalPrice);
+                case ValidShoppingCart success:
+                    Console.WriteLine("Items were added and validated!");
                     success.ValidatedProducts.ForEach(product => { Console.WriteLine(product.Quantity + " " + product.Price); });
                     break;
-                case CartFailedEvent failed:
+                case InvalidShoppingCart failed:
                     Console.WriteLine(failed.Reason);
                     break;
                 default: Console.WriteLine("Error at Order calculation!"); break;
             }
 
-            //workflow 3
-            SendOrderWorkflow workflowSender = new SendOrderWorkflow();
-            var resultSender = workflowSender.SenderExecute(new SenderCartCommand(shoppingCart as PaidShoppingCart));
+            //WORKFLOW: CALCULATE TOTAL PRICE
+            CalculateOrderWorkflow calculateWorkflow = new CalculateOrderWorkflow();
+            var calculateResult = calculateWorkflow.Execute(validationResult);
 
-            //orders shopping cart
-            switch (resultSender)
+            switch (calculateResult)
             {
-                case CartScucceededEvent success:
-                    Console.WriteLine("Order sent successfully!");
+                case CalculatedShoppingCart success:
+                    success.ValidatedProducts.ForEach(product => { Console.WriteLine(product.Quantity + " " + product.Price); });
+                    Console.WriteLine("Final Price Is: " + success.FinalPrice);
                     break;
-                case CartFailedEvent failed:
+                case InvalidShoppingCart failed:
                     Console.WriteLine(failed.Reason);
                     break;
-                default: Console.WriteLine("Error at Order calculation!"); break;
             }
 
-            ////Afisare si adresa adaugata
-            //shoppingCart = OrderShoppingCart(shoppingCart);
-            //Console.WriteLine(shoppingCart.GetType());
+            //WORKFLOW: ORDER SHOPPING CART
+            FinishOrderWorkflow finishOrderWorkflow = new FinishOrderWorkflow();
+            var finalResult = finishOrderWorkflow.Execute(validationResult);
+
+            switch (finalResult)
+            {
+                case PaidShoppingCart success:
+                    success.ValidatedProducts.ForEach(product => { Console.WriteLine(product.Quantity + " " + product.Price); });
+                    Console.WriteLine("Final Price Is: " + success.FinalPrice);
+                    Console.WriteLine("CheckoutDate: " + success.CheckoutDate);
+                    break;
+                case InvalidShoppingCart failed:
+                    Console.WriteLine(failed.Reason);
+                    break;
+            }
         }
     }
 }
