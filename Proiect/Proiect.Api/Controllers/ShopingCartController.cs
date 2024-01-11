@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Proiect.Domain.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -8,6 +9,24 @@ namespace Proiect.Api.Controllers
     [ApiController]
     public class ShopingCartController : ControllerBase
     {
+        public static Contact contactCurent;
+
+        // POST api/<ShopingCartController>
+        [HttpPost("addContatct")]
+        public IActionResult AddContact([FromBody] Contact contact)
+        {
+            contactCurent = contact;
+            return Ok(contactCurent);
+        }
+
+        // POST api/<ShopingCartController>
+        [HttpPost("addProductsToShoppingCartForCurrentUser")]
+        public IActionResult AddProductsToShoppingCartForCurrentUser([FromBody] List<UnvalidatedProduct> products)
+        {
+
+            return Ok(products);
+        }
+
         // GET: api/<ShopingCartController>
         [HttpGet]
         public IEnumerable<string> Get()
@@ -20,12 +39,6 @@ namespace Proiect.Api.Controllers
         public string Get(int id)
         {
             return "value";
-        }
-
-        // POST api/<ShopingCartController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
         }
 
         // PUT api/<ShopingCartController>/5

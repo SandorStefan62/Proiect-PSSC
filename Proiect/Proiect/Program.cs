@@ -40,8 +40,9 @@ namespace Proiect
             //UnvalidatedProduct product1 = availableProducts.OrderProduct("Product 1", 10);
             //UnvalidatedProduct product2 = availableProducts.OrderProduct("Product 2", 5);
             UnvalidatedProduct product1 = availableProducts.OrderProduct("Pix", 10);
+            productRepository.DecreaseQuantity("Pix", 10);
             UnvalidatedProduct product2 = availableProducts.OrderProduct("Telefon", 1);
-
+            productRepository.DecreaseQuantity("Telefon", 1);
             //checks if quantity has been modified successfully
             availableProducts.CheckProducts();
             availableProducts.Products.ForEach(product => { Console.WriteLine(product.Quantity.GetType()); });

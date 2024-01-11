@@ -52,6 +52,7 @@ namespace Proiect.Domain.Models
             }
             if (product.Quantity.TryDecrease(orderQuantity))
             {
+
                 Console.WriteLine($"Ordered {orderQuantity} units of {product.Code}. Remaining quantity: {product.Quantity}");
                 return new UnvalidatedProduct(product.Code, quantity, product.Price);
             }

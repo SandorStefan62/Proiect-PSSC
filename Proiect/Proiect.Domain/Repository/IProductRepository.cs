@@ -12,7 +12,7 @@ namespace Proiect.Domain.Repository
     {
         Task<List<Product>> TryGetAllProducts();
         List<Product> GetAllProducts();
-        TryAsync<Unit> TryDecreaseQuantity(Product product, int quantity);
+        void DecreaseQuantity(string product, int quantity);
 
     }
 }

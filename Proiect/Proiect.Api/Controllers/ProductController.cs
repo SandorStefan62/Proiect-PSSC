@@ -13,7 +13,7 @@ namespace Proiect.Api.Controllers
     public class ProductController : ControllerBase
     {
 
-        [HttpGet]
+        [HttpGet("getAllProducts")]
         public IEnumerable<Product> Get([FromServices] IProductRepository productRepository)
         {
             var products = productRepository.GetAllProducts();

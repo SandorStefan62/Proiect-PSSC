@@ -17,9 +17,11 @@ namespace Proiect.Data.Repository
         {
             this.orderContext = orderContext;
         }
-        public TryAsync<Unit> TryDecreaseQuantity(Product product, int quantity)
+        public void DecreaseQuantity(string product, int quantity)
         {
-            throw new NotImplementedException();
+            var existingProduct = orderContext.Product.First(a => a.Code == product);
+            existingProduct.Stock = existingProduct.Stock - quantity;
+            orderContext.SaveChanges();
         }
 
         public async Task<List<Product>> TryGetAllProducts()
