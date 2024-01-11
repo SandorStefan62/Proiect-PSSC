@@ -28,5 +28,11 @@ namespace Proiect.Data.Repository
             return products.Select(product => new Product(product.Code,product.Stock,(product.Price)))
                            .ToList();
         }
+        public List<Product> GetAllProducts()
+        {
+            var products = this.orderContext.Product.ToList();
+            return products.Select(product => new Product(product.Code, product.Stock, (product.Price)))
+                           .ToList();
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace Proiect.Domain.Repository
     public interface IProductRepository
     {
         Task<List<Product>> TryGetAllProducts();
+        List<Product> GetAllProducts();
         TryAsync<Unit> TryDecreaseQuantity(Product product, int quantity);
 
     }

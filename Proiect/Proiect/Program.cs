@@ -26,7 +26,7 @@ namespace Proiect
             //init
             Contact contact = new Contact("FirstName", "LastName", "1111111111", "Adresa");
             IShoppingCart shoppingCart = new EmptyShoppingCart(contact);
-            AvailableProducts availableProducts = new AvailableProducts(productRepository.TryGetAllProducts().Result);
+            AvailableProducts availableProducts = new AvailableProducts(productRepository.GetAllProducts());
             AvailableProducts availableProductsOld = new AvailableProducts();
             List<Product> shoppingCartProducts = new List<Product>();
 
