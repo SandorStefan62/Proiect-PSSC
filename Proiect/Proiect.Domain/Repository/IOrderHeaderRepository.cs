@@ -13,8 +13,8 @@ namespace Proiect.Domain.Repository
     public interface IOrderHeaderRepository
     {
         void SaveOrderHeader(ValidShoppingCart order);
-        TryAsync<Unit> TrySaveOrderHeader(CalculatedShoppingCart order);
-        TryAsync<Unit> TrySaveOrderHeader(PaidShoppingCart order);
+        void SaveCalculatedOrderHeader(CalculatedShoppingCart order);
+        void SavePaidOrderHeader(PaidShoppingCart order);
         Task<ShoppingCart> TryGetOrderHeaderByContact(Contact contact);
     }
 }

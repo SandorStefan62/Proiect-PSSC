@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Proiect.Domain.Models.ShoppingCart;
 using static LanguageExt.Prelude;
+using Microsoft.EntityFrameworkCore;
 
 namespace Proiect.Data.Repository
 {
@@ -33,14 +34,33 @@ namespace Proiect.Data.Repository
             orderContext.Add(newOrderLine);
             orderContext.SaveChanges();
         }
-        public TryAsync<Unit> TrySaveOrderHeader(PaidShoppingCart order)
-        {
-            throw new NotImplementedException();
-        }
+        
 
-        public TryAsync<Unit> TrySaveOrderHeader(CalculatedShoppingCart order)
+        public void SaveCalculatedOrderHeader(CalculatedShoppingCart order)
         {
-            throw new NotImplementedException();
+            /* var searchCondition = (orderContext.OrderHeader.ToList()).ToLookup(orderHeader => orderHeader.Adress);
+             var newOrderLine = new OrderHeaderDTO()
+             {
+                 OrderId = searchCondition[order.Contact.Address].SingleOrDefault().OrderId,
+                 Total = (decimal) order.FinalPrice,
+                 Adress = order.Contact.Address,
+                 FirstName = order.Contact.FirstName,
+                 LastName = order.Contact.LastName,
+                 TelephoneNumber = order.Contact.TelephoneNumber,
+                 CheckoutDate = DateTime.MaxValue,
+             }; 
+             orderContext.Entry(newOrderLine).State = EntityState.Modified;
+             orderContext.SaveChanges();*/
+
+            var existingOrder = orderContext.OrderHeader.First(a => a.Adress == order.Contact.Address);
+            existingOrder.Total = (decimal)order.FinalPrice;
+            orderContext.SaveChanges();
+        }
+        public void SavePaidOrderHeader(PaidShoppingCart order)
+        {
+            var existingOrder = orderContext.OrderHeader.First(a => a.Adress == order.Contact.Address);
+            existingOrder.CheckoutDate = order.CheckoutDate;
+            orderContext.SaveChanges();
         }
         public Task<ShoppingCart> TryGetOrderHeaderByContact(Contact contact)
         {

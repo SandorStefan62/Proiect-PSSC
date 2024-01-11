@@ -10,6 +10,6 @@ namespace Proiect.Domain.Models
 {
     public record ValidatedProduct(string Code, IQuantity Quantity, IPrice Price)
     {
-        public int OrderId { get; set; }
+        public int OrderId { get; set; } = 0;
     }
 }

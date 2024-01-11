@@ -8,6 +8,7 @@ namespace Proiect.Domain.Models
         public interface IQuantity
         {
             bool TryDecrease(int amount);
+            int TryGetAmount();
         }
         public record Units : IQuantity
         {
@@ -24,6 +25,10 @@ namespace Proiect.Domain.Models
                 this.number -= amount;
                 return true;
             }
+            public int TryGetAmount()
+            {
+                return this.number;
+            }
             public override string ToString()
             {
                 return $"{this.number}";
@@ -39,6 +44,10 @@ namespace Proiect.Domain.Models
             public bool TryDecrease(int amount)
             {
                 return false;
+            }
+            public int TryGetAmount()
+            {
+                return -1;
             }
             public override string ToString()
             {
