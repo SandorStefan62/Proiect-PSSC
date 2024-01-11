@@ -25,6 +25,45 @@ namespace Proiect.Domain.Models
                     FinalPrice = finalPrice;
                 }
             }
+            public record SenderCartScucceededEvent : ICartEvent
+            {
+                public List<ValidatedProduct> ValidatedProducts { get; }
+                public Contact Contact { get; }
+
+                double FinalPrice { get; }
+
+                DateTime CheckoutDate { get; }
+
+                internal SenderCartScucceededEvent(List<ValidatedProduct> validatedProducts, Contact contact, double finalPrice, DateTime checkoutDate)
+                {
+                    ValidatedProducts = validatedProducts;
+                    Contact = contact;
+                    FinalPrice = finalPrice;
+                    CheckoutDate = checkoutDate;
+                }
+            }
+
+            public record InitialCartScucceededEvent : ICartEvent
+            {
+                public List<UnvalidatedProduct> UnvalidatedProducts { get; }
+                public Contact Contact { get; }
+
+                internal InitialCartScucceededEvent(List<UnvalidatedProduct> unvalidatedProducts, Contact contact)
+                {
+                    UnvalidatedProducts = unvalidatedProducts;
+                    Contact = contact;
+                }
+            }
+
+            public record AditionalCartScucceededEvent : ICartEvent
+            {
+                public List<UnvalidatedProduct> UnvalidatedProducts { get; }
+
+                internal AditionalCartScucceededEvent(List<UnvalidatedProduct> unvalidatedProducts)
+                {
+                    UnvalidatedProducts = unvalidatedProducts;
+                }
+            }
 
             public record CartFailedEvent : ICartEvent
             {

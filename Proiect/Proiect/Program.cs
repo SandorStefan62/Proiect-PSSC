@@ -9,13 +9,14 @@ using Proiect.Data;
 using Proiect.Domain.Repository;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static Proiect.Domain.Models.Events.CartEvent;
+using System.Collections.Generic;
 
 
 namespace Proiect
 {
     class Program
     {
-        private static string ConnectionString1 = "Integrated Security=true;Server=LAPTOP-DRAGOS\\SQLEXPRESS;Database=master;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
+        //private static string ConnectionString1 = "Integrated Security=true;Server=LAPTOP-DRAGOS\\SQLEXPRESS;Database=master;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
         private static string ConnectionString = "Integrated Security=true;Server=localhost\\SQLEXPRESS;Database=master;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
         static void Main(string[] args)
         {
@@ -51,45 +52,59 @@ namespace Proiect
             availableProductsDB.CheckProducts();
             availableProductsDB.Products.ForEach(product => { Console.WriteLine(product.Quantity.GetType()); });
             Console.WriteLine("\n\n");
-            
-            //adds ordered products to shopping cart
-            shoppingCart = AddProductToShoppingCart(shoppingCart, product1);
-            shoppingCart = AddProductToShoppingCart(shoppingCart, product2);//workflow
 
-            ////checks items in shopping cart
-            //shoppingCartProducts = GetShoppingCartItems(shoppingCart);
-            //shoppingCartProducts.ForEach(product => { Console.WriteLine(product.ToString()); });
-            //Console.WriteLine("\n\n");
+            List<UnvalidatedProduct> orderedProducts = new List<UnvalidatedProduct>
+            {
+                product1,
+                product2
+            };
+
+            foreach (var product in orderedProducts)
+            {
+                shoppingCart = AddProductToShoppingCart(shoppingCart, product);
+            }
+
+            //shoppingCart = AddProductToShoppingCart(shoppingCart, product1);
+            //shoppingCart = AddProductToShoppingCart(shoppingCart, product2);//workflow
+
+            //checks items in shopping cart
+            shoppingCartProducts = GetShoppingCartItems(shoppingCart);
+            shoppingCartProducts.ForEach(product => { Console.WriteLine(product.ToString()); });
+            Console.WriteLine("\n\n");
 
             ////removes one item from the shopping cart
             ////shoppingCart = RemoveProductFromShoppingCart(shoppingCart, "Product 1");
             //shoppingCart = RemoveProductFromShoppingCart(shoppingCart, "Telefon");
 
-            ////checks if item has been removed successfully
-            //shoppingCartProducts = GetShoppingCartItems(shoppingCart);
-            //shoppingCartProducts.ForEach(product => { Console.WriteLine(product.ToString()); });
-            //Console.WriteLine("\n\n");
+            //checks if item has been removed successfully
+            shoppingCartProducts = GetShoppingCartItems(shoppingCart);
+            shoppingCartProducts.ForEach(product => { Console.WriteLine(product.ToString()); });
+            Console.WriteLine("\n\n");
 
             ////checks type of shopping cart
             //Console.WriteLine(shoppingCart.GetType());
             //Console.WriteLine("\n\n");
 
-            
-            ValidationWorkflow workflow = new ValidationWorkflow();
-            var result = workflow.Execute(new CartCommand(shoppingCart as UnvalidatedShoppingCart));
 
-            ////validates shopping cart
-            //shoppingCart = ValidateShoppingCart((UnvalidatedShoppingCart)shoppingCart);
-            //Console.WriteLine(shoppingCart.GetType());
-            //Console.WriteLine("\n\n");
+            //GetCartItemsWorkflow workflowGetItem = new GetCartItemsWorkflow();
+            //var resultGetItem = workflowGetItem.InitialExecute(new InitialCartCommand(shoppingCart as EmptyShoppingCart), orderedProducts);
 
-            ////calculates shopping cart
-            //shoppingCart = CalculateShoppingCart(shoppingCart);
-            //Console.WriteLine(shoppingCart.GetType());
-            //Console.WriteLine("\n\n");
+            //switch (resultGetItem)
+            //{
+            //    case CartScucceededEvent success:
+            //        success.ValidatedProducts.ForEach(product => { Console.WriteLine(product.Quantity + " " + product.Price); });
+            //        break;
+            //    case CartFailedEvent failed:
+            //        Console.WriteLine(failed.Reason);
+            //        break;
+            //    default: Console.WriteLine("Error when getting items!"); break;
+            //}
+
+            ValidationWorkflow workflowValidation = new ValidationWorkflow();
+            var resultValidation = workflowValidation.Execute(new CartCommand(shoppingCart as UnvalidatedShoppingCart));
 
             //orders shopping cart
-            switch(result)
+            switch(resultValidation)
             {
                 case CartScucceededEvent success:
                     Console.WriteLine("Final Price Is: " + success.FinalPrice);
@@ -102,10 +117,24 @@ namespace Proiect
             }
 
             //workflow 3
+            SendOrderWorkflow workflowSender = new SendOrderWorkflow();
+            var resultSender = workflowSender.SenderExecute(new SenderCartCommand(shoppingCart as PaidShoppingCart));
 
-            //Afisare si adresa adaugata
-            shoppingCart = OrderShoppingCart(shoppingCart);
-            Console.WriteLine(shoppingCart.GetType());
+            //orders shopping cart
+            switch (resultSender)
+            {
+                case CartScucceededEvent success:
+                    Console.WriteLine("Order sent successfully!");
+                    break;
+                case CartFailedEvent failed:
+                    Console.WriteLine(failed.Reason);
+                    break;
+                default: Console.WriteLine("Error at Order calculation!"); break;
+            }
+
+            ////Afisare si adresa adaugata
+            //shoppingCart = OrderShoppingCart(shoppingCart);
+            //Console.WriteLine(shoppingCart.GetType());
         }
     }
 }
