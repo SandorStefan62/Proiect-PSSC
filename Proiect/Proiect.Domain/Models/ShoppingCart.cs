@@ -11,7 +11,7 @@ namespace Proiect.Domain.Models
     public partial class ShoppingCart
     {
         public interface IShoppingCart { }
-        public record EmptyShoppingCart : IShoppingCart
+        public record EmptyShoppingCart : IShoppingCart // empty -> validat ; validat -> calculat ; calculat -> paid
         {
             public EmptyShoppingCart(Contact contact)
             {
@@ -79,5 +79,6 @@ namespace Proiect.Domain.Models
             public double FinalPrice { get; init; }
             public DateTime CheckoutDate {  get; init; }
         }
+
     }
 }

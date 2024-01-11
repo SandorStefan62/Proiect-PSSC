@@ -104,9 +104,8 @@ namespace Proiect.Domain.Operations
                     emptyProducts.Add(product);
                     return new UnvalidatedShoppingCart(emptyProducts, emptyShoppingCart.Contact);
                 case UnvalidatedShoppingCart unvalidatedShoppingCart:
-                    List<UnvalidatedProduct> unvalidatedProducts = new List<UnvalidatedProduct>(unvalidatedShoppingCart.UnvalidatedProducts);
-                    unvalidatedProducts.Add(product);
-                    return new UnvalidatedShoppingCart(unvalidatedProducts, unvalidatedShoppingCart.Contact);
+                    unvalidatedShoppingCart.UnvalidatedProducts.Add(product);
+                    return unvalidatedShoppingCart;
                 case InvalidShoppingCart:
                 case PaidShoppingCart:
                 case CalculatedShoppingCart:
